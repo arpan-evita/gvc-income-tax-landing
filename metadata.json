@@ -1,0 +1,6 @@
+{
+  "name": "GVC Audit",
+  "description": "Income Tax Consultant in Gurgaon for MSMEs, Startups & Growing Businesses. Specialized tax return filing, planning, assessments, and TDS compliance services.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
