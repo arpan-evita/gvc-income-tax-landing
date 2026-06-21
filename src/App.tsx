@@ -40,6 +40,7 @@ import ConsultationModal from './components/ConsultationModal';
 import InteractiveCalculator from './components/InteractiveCalculator';
 import HubsMap from './components/HubsMap';
 import FAQSection from './components/FAQSection';
+import AVCIndiaPage from './components/AVCIndiaPage';
 
 import { PROBLEMS_DATA, INDUSTRIES_DATA, COMPLIANCE_RULES } from './data';
 import { IndustryItem, ConsultationBooking } from './types';
@@ -53,6 +54,41 @@ export default function App() {
   
   // Call Prompt simulation state
   const [showCallAlert, setShowCallAlert] = useState(false);
+
+  // Brand routing state
+  const [currentPage, setCurrentPage] = useState<'gvc' | 'avc'>(() => {
+    const path = window.location.pathname;
+    const hash = window.location.hash;
+    const search = window.location.search;
+    if (path.includes('/services/income-tax-direct-tax') || hash === '#avc' || search.includes('brand=avc')) {
+      return 'avc';
+    }
+    return 'gvc';
+  });
+
+  useEffect(() => {
+    const handleUrlChange = () => {
+      const path = window.location.pathname;
+      const hash = window.location.hash;
+      const search = window.location.search;
+      if (path.includes('/services/income-tax-direct-tax') || hash === '#avc' || search.includes('brand=avc')) {
+        setCurrentPage('avc');
+      } else {
+        setCurrentPage('gvc');
+      }
+    };
+    window.addEventListener('popstate', handleUrlChange);
+    window.addEventListener('hashchange', handleUrlChange);
+    return () => {
+      window.removeEventListener('popstate', handleUrlChange);
+      window.removeEventListener('hashchange', handleUrlChange);
+    };
+  }, []);
+
+  const handleBrandSwitch = (brand: 'gvc' | 'avc') => {
+    setCurrentPage(brand);
+    window.location.hash = brand === 'avc' ? 'avc' : 'gvc';
+  };
 
   // Sync active bookings from localStorage
   const syncBookings = () => {
@@ -106,8 +142,40 @@ export default function App() {
     }
   };
 
+  if (currentPage === 'avc') {
+    return (
+      <div className="min-h-screen relative" id="brand-avc-root">
+        <AVCIndiaPage 
+          onTriggerConsultation={triggerConsultation} 
+          onSwitchBrand={() => handleBrandSwitch('gvc')} 
+        />
+        <ConsultationModal
+          isOpen={isConsultationOpen}
+          onClose={() => setIsConsultationOpen(false)}
+          prefilledService={prefilledService}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-surface-soft text-on-surface font-sans scroll-smooth flex flex-col">
+      {/* Dynamic Brand Swapper Header Bar */}
+      <div className="bg-[#00152c] text-[#fee68c] py-2.5 px-4 text-xs font-semibold border-b border-gray-850">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
+          <div className="flex items-center gap-2">
+            <span className="bg-accent text-primary text-[10px] uppercase font-black px-1.5 py-0.5 rounded animate-pulse">Brand Portfolios</span>
+            <span>Looking for the brand new <strong className="text-white">AVC India</strong> direct tax &amp; ITR filing portal?</span>
+          </div>
+          <button
+            onClick={() => handleBrandSwitch('avc')}
+            className="text-[#fed255] hover:text-white underline text-xs font-extrabold cursor-pointer flex items-center gap-1 transition-all"
+          >
+            Launch AVC India Brand View →
+          </button>
+        </div>
+      </div>
+
       {/* Structural Headers */}
       <Navigation onBookConsultation={triggerConsultation} />
 
